@@ -9,6 +9,6 @@ description][1].
 ## Mac OS
 
     $ javac -cp ../lib/* Percolation.java PercolationStats.java
-    $ java -cp "../lib/*" PercolationStats 200 1000
+    $ java -cp "../lib/*:." PercolationStats 200 1000
 
 [1]: http://coursera.cs.princeton.edu/algs4/assignments/percolation.html
