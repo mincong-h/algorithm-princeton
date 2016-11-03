@@ -6,9 +6,14 @@ prints the mean, standard deviation, and the 95% confidence interval for the
 percolation threshold. For more informations, check [the official assignment
 description][1].
 
-## Mac OS
+## Mac OS / Linux
 
     $ javac -cp ../lib/* Percolation.java PercolationStats.java
     $ java -cp "../lib/*:." PercolationStats 200 1000
+
+## Windows
+
+    $ javac -cp ../lib/* Percolation.java PercolationStats.java
+    $ java -cp "../lib/*;." PercolationStats 200 1000
 
 [1]: http://coursera.cs.princeton.edu/algs4/assignments/percolation.html
