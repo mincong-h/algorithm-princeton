@@ -10,16 +10,16 @@ import edu.princeton.cs.algs4.WeightedQuickUnionUF;
  * to gush through to the surface)? Scientists have defined an abstract process
  * known as percolation to model such situations.
  *
- * @see {@link http://coursera.cs.princeton.edu/algs4/assignments/percolation.html}
  * @author Mincong Huang
  */
 public class Percolation {
 
-    private WeightedQuickUnionUF weightedQU;
-    private boolean isOpen[];
-    private int indexTop;
-    private int indexBottom;
-    private int N;
+    private final WeightedQuickUnionUF normalQU;
+    private final WeightedQuickUnionUF backwashQU;
+    private final boolean[] isOpen;
+    private final int topIndex;
+    private final int btmIndex;
+    private final int n;
 
     /**
      * Create n-by-n grid, with all sites blocked
@@ -28,28 +28,33 @@ public class Percolation {
      */
     public Percolation(int n) {
         if (n <= 0) {
-            throw new IllegalArgumentException("Value n must be greater than 0.");
+            throw new IllegalArgumentException("n must be greater than 0.");
         }
-        N = n;
-        indexTop = 0;
-        indexBottom = n * n + 1;
-        weightedQU = new WeightedQuickUnionUF(indexOf(n, n) + 2);
-        isOpen = new boolean[indexOf(n, n) + 2];
-        isOpen[indexTop] = true;
-        isOpen[indexBottom] = true;
+        this.n = n;
+        topIndex = 0;
+        btmIndex = n * n + 1;
+        backwashQU = new WeightedQuickUnionUF(n * n + 2);
+        normalQU = new WeightedQuickUnionUF(n * n + 1);  // wihout bottom index
+        isOpen = new boolean[n * n + 2];
+        isOpen[topIndex] = true;
+        isOpen[btmIndex] = true;
     }
 
     /**
-     * Convert a 2D coordinate to 1D. The indexes are first converted from
-     * base-1 to base-0, then converted from 2D to 1D.
+     * Convert a 2D coordinate to 1D.
      *
      * @param row base-1 index of row
      * @param col base-1 index of column
      */
     private int indexOf(int row, int col) {
-        int row0 = row + 1;
-        int col0 = col + 1;
-        return (row0 - 1) * (N + 1) + col0;
+        // check bounds
+        if (row < 1 || row > n) {
+            throw new IndexOutOfBoundsException("Row is out of bounds.");
+        }
+        if (col < 1 || col > n) {
+            throw new IndexOutOfBoundsException("Column is out of bounds.");
+        }
+        return (row - 1) * n + col;
     }
 
     /**
@@ -59,30 +64,28 @@ public class Percolation {
      * @param col base-1 index of column
      */
     public void open(int row, int col) {
-
-        checkBounds(row, 1, N);
-        checkBounds(col, 1, N);
-
         int currIndex = indexOf(row, col);
         isOpen[currIndex] = true;
 
         if (row == 1) {
-            weightedQU.union(currIndex, indexTop);              // Top
+            backwashQU.union(currIndex, topIndex);  // Top
+            normalQU.union(currIndex, topIndex);
         }
-        if (row == N) {
-            weightedQU.union(currIndex, indexBottom);           // Bottom
+        if (row == n) {
+            backwashQU.union(currIndex, btmIndex);  // Bottom
         }
-        if (row > 1 && isOpen(row - 1, col)) {
-            weightedQU.union(currIndex, indexOf(row - 1, col));  // North
-        }
-        if (row < N && isOpen(row + 1, col)) {
-            weightedQU.union(currIndex, indexOf(row + 1, col));  // South
-        }
-        if (col > 1 && isOpen(row, col - 1)) {
-            weightedQU.union(currIndex, indexOf(row, col - 1));  // West
-        }
-        if (col < N && isOpen(row, col + 1)) {
-            weightedQU.union(currIndex, indexOf(row, col + 1));  // East
+        tryUnion(row, col, row - 1, col);  // North 
+        tryUnion(row, col, row + 1, col);  // South        
+        tryUnion(row, col, row, col - 1);  // West
+        tryUnion(row, col, row, col + 1);  // East
+    }
+
+    private void tryUnion(int rowA, int colA, int rowB, int colB) {
+        // I assume that (rowA, colA) is correct.
+        if (0 < rowB && rowB <= n && 0 < colB && colB <= n
+                && isOpen(rowB, colB)) {
+            backwashQU.union(indexOf(rowA, colA), indexOf(rowB, colB));
+            normalQU.union(indexOf(rowA, colA), indexOf(rowB, colB));
         }
     }
 
@@ -93,8 +96,6 @@ public class Percolation {
      * @param col base-1 index of column
      */
     public boolean isOpen(int row, int col) {
-        checkBounds(row, 1, N);
-        checkBounds(col, 1, N);
         return isOpen[indexOf(row, col)];
     }
 
@@ -105,22 +106,14 @@ public class Percolation {
      * @param col base-1 index of column
      */
     public boolean isFull(int row, int col) {
-        checkBounds(row, 1, N);
-        checkBounds(col, 1, N);
-        return weightedQU.connected(indexTop, indexOf(row, col));
+        return normalQU.connected(topIndex, indexOf(row, col));
     }
 
     /**
      * Does the system percolate?
      */
     public boolean percolates() {
-        return weightedQU.connected(indexTop, indexBottom);
-    }
-
-    private void checkBounds(int val, int min, int max) {
-        if (val < min || val > max)
-            new IndexOutOfBoundsException(
-                    "Value should be between " + min + " and " + max);
+        return backwashQU.connected(topIndex, btmIndex);
     }
 
     public static void main(String[] args) {

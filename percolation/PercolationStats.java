@@ -16,10 +16,10 @@ public class PercolationStats {
      */
     public PercolationStats(int n, int trials) {
         if (n <= 0) {
-            throw new IllegalStateException("n must be greater than 0.");
+            throw new IllegalArgumentException("n <= 0.");
         }
         if (trials <= 0) {
-            throw new IllegalStateException("trials must be greater than 0.");
+            throw new IllegalArgumentException("trials <= 0.");
         }
         fractions = new double[trials];
         for (int i = 0; i < trials; i++) {
