@@ -10,7 +10,6 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
     private Item[] array;
     private int lastIndex;
-    private int removedCount;
 
     /**
      * Construct an empty randomized queue
@@ -21,7 +20,6 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         Item[] a = (Item[]) new Object[1];
         array = a;
         lastIndex = -1;
-        removedCount = 0;
     }
 
     /**
@@ -35,7 +33,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
      * Return the number of items on the queue
      */
     public int size() {
-        return lastIndex + 1 - removedCount;
+        return lastIndex + 1;
     }
 
     /**
@@ -59,13 +57,10 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         if (isEmpty()) {
             throw new NoSuchElementException("RandomizedQueue is empty.");
         }
-        Item removed = null;
-        while (removed == null) {
-            int i = StdRandom.uniform(lastIndex + 1);
-            removed = array[i];
-            array[i] = null;
-        }
-        removedCount++;
+        int i = StdRandom.uniform(lastIndex + 1);
+        Item removed = array[i];
+        array[i] = array[lastIndex];
+        array[lastIndex--] = null;
         // resize array if it is only 25% full
         if (size() > 0 && size() == array.length / 4) {
             resize(array.length / 2);
@@ -90,16 +85,10 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     private void resize(int newCapacity) {
         @SuppressWarnings("unchecked")
         Item[] newArray = (Item[]) new Object[newCapacity];
-        int i = 0;
-        int j = 0;
+        int i = 0, j = 0;
         while (i <= lastIndex) {
-            if (array[i] != null) {
-                newArray[j] = array[i];
-                j++;
-            }
-            i++;
+            newArray[j++] = array[i++];
         }
-        removedCount = 0;
         array = newArray;
         lastIndex = j - 1;
     }
@@ -113,11 +102,22 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
     private class RandomizedIterator implements Iterator<Item> {
 
-        private int visited = 0;
+        private Item[] copiedArray;
+        private int copiedLastIndex;
+
+        RandomizedIterator() {
+            @SuppressWarnings("unchecked")
+            Item[] a = (Item[]) new Object[lastIndex + 1];
+            for (int i = 0; i <= lastIndex; i++) {
+                a[i] = array[i];
+            }
+            copiedArray = a;
+            copiedLastIndex = lastIndex;
+        }
 
         @Override
         public boolean hasNext() {
-            return visited < size();
+            return copiedLastIndex >= 0;
         }
 
         @Override
@@ -125,8 +125,11 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
             if (!hasNext()) {
                 throw new NoSuchElementException("No more item.");
             }
-            visited++;
-            return sample();
+            int i = StdRandom.uniform(copiedLastIndex + 1);
+            Item item = copiedArray[i];
+            copiedArray[i] = copiedArray[copiedLastIndex];
+            copiedArray[copiedLastIndex--] = null;
+            return item;
         }
 
         @Override
@@ -137,6 +140,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
     /**
      * Serialization of the queue.
+     *
      * TODO remove this method before your submission.
      */
     @Override
@@ -153,6 +157,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
     /**
      * Unit testing.
+     *
      * TODO remove these tests before your submission, otherwise submission will
      * fail due to the usage of public method {@code toString()}.
      */
@@ -175,12 +180,11 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         StdOut.println("Test 1F passed? " + q1.toString().equals("[1,2,3,4]"));
         q1.dequeue();
         String test1G = q1.toString();
-        StdOut.println("Test 1G passed? " + test1G);
         StdOut.println("Test 1G passed? "
-                 + (test1G.equals("[null,2,3,4]")
-                 || test1G.equals("[1,null,3,4]")
-                 || test1G.equals("[1,2,null,4]")
-                 || test1G.equals("[1,2,3,null]")));
+                 + (test1G.equals("[4,2,3]")
+                 || test1G.equals("[1,4,3]")
+                 || test1G.equals("[1,2,4]")
+                 || test1G.equals("[1,2,3]")));
         q1.dequeue();
         q1.dequeue();
         // Queue should be resized when 25% full: the size will be reduced by
@@ -193,14 +197,12 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
                  || test1H.equals("[3]")
                  || test1H.equals("[4]")));
         q1.dequeue();
-        StdOut.println("Test 1I passed? " + q1.toString().equals("[null]"));
+        StdOut.println("Test 1I passed? " + q1.toString().equals("[]"));
         StdOut.println("Test 1J passed? " + q1.isEmpty());
         StdOut.println("Test 1K passed? " + !q1.iterator().hasNext());
         StdOut.println("Test 1L passed? " + (q1.iterator() != q1.iterator()));
         q1.enqueue(1);
-        // The size of the current array is 2, so element '1' is added after the
-        // existing-removed element 'null'.
-        StdOut.println("Test 1M passed? " + q1.toString().equals("[null,1]"));
+        StdOut.println("Test 1M passed? " + q1.toString().equals("[1]"));
         q1.enqueue(2);
         StdOut.println("Test 1N passed? " + q1.toString().equals("[1,2]"));
 

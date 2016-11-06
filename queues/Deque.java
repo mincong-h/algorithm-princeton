@@ -17,7 +17,7 @@ public class Deque<Item> implements Iterable<Item> {
         Node prev;
         Node next;
 
-        Node (Item item) {
+        Node(Item item) {
             this.item = item;
         }
     }
@@ -114,7 +114,7 @@ public class Deque<Item> implements Iterable<Item> {
 
     private class HeadFirstIterator implements Iterator<Item> {
 
-        Node curr = head;
+        private Node curr = head;
 
         @Override
         public boolean hasNext() {
@@ -136,9 +136,9 @@ public class Deque<Item> implements Iterable<Item> {
         }
     }
 
-
     /**
      * Serialization of the queue.
+     *
      * TODO remove this method before your submission.
      */
     @Override
@@ -155,6 +155,7 @@ public class Deque<Item> implements Iterable<Item> {
 
     /**
      * Unit testing.
+     *
      * TODO remove these tests before your submission, otherwise submission will
      * fail due to the usage of public method {@code toString()}.
      */
