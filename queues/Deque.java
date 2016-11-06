@@ -5,7 +5,7 @@ import java.util.NoSuchElementException;
 /**
  * @author Mincong Huang
  */
-public class Deque<E> implements Iterable<E> {
+public class Deque<Item> implements Iterable<Item> {
 
     private Node head;
     private Node tail;
@@ -13,12 +13,12 @@ public class Deque<E> implements Iterable<E> {
 
     private class Node {
 
-        E e;
+        Item item;
         Node prev;
         Node next;
 
-        Node (E e) {
-            this.e = e;
+        Node (Item item) {
+            this.item = item;
         }
     }
 
@@ -49,11 +49,11 @@ public class Deque<E> implements Iterable<E> {
     /**
      * Add the item to the front
      */
-    public void addFirst(E e) {
-        if (e == null) {
+    public void addFirst(Item item) {
+        if (item == null) {
             throw new NullPointerException("Element e cannot be null.");
         }
-        Node node = new Node(e);
+        Node node = new Node(item);
         node.next = head.next;
         node.prev = head;
         head.next.prev = node;
@@ -64,11 +64,11 @@ public class Deque<E> implements Iterable<E> {
     /**
      * Add the item to the end
      */
-    public void addLast(E e) {
-        if (e == null) {
+    public void addLast(Item item) {
+        if (item == null) {
             throw new NullPointerException("Element e connot be null.");
         }
-        Node node = new Node(e);
+        Node node = new Node(item);
         node.next = tail;
         node.prev = tail.prev;
         tail.prev.next = node;
@@ -79,7 +79,7 @@ public class Deque<E> implements Iterable<E> {
     /**
      * Remove and return the item from the front
      */
-    public E removeFirst() {
+    public Item removeFirst() {
         if (size == 0) {
             throw new NoSuchElementException("Deque is empty.");
         }
@@ -87,13 +87,13 @@ public class Deque<E> implements Iterable<E> {
         head.next = node.next;
         head.next.prev = head;
         size--;
-        return node.e;
+        return node.item;
     }
 
     /**
      * Remove and return the item from the end
      */
-    public E removeLast() {
+    public Item removeLast() {
         if (size == 0) {
             throw new NoSuchElementException("Deque is empty.");
         }
@@ -101,18 +101,18 @@ public class Deque<E> implements Iterable<E> {
         tail.prev = node.prev;
         tail.prev.next = tail;
         size--;
-        return node.e;
+        return node.item;
     }
 
     /**
      * Return an iterator over items in order from front to end
      */
     @Override
-    public Iterator<E> iterator() {
+    public Iterator<Item> iterator() {
         return new HeadFirstIterator();
     }
 
-    private class HeadFirstIterator implements Iterator<E> {
+    private class HeadFirstIterator implements Iterator<Item> {
 
         Node curr = head;
 
@@ -122,12 +122,12 @@ public class Deque<E> implements Iterable<E> {
         }
 
         @Override
-        public E next() {
+        public Item next() {
             if (!hasNext()) {
                 throw new NoSuchElementException("No more item.");
             }
             curr = curr.next;
-            return curr.e;
+            return curr.item;
         }
 
         @Override
@@ -136,11 +136,16 @@ public class Deque<E> implements Iterable<E> {
         }
     }
 
+
+    /**
+     * Serialization of the queue.
+     * TODO remove this method before your submission.
+     */
     @Override
     public String toString() {
         String result = "";
-        for (E e : this) {
-            result += "," + e;
+        for (Item item : this) {
+            result += "," + item;
         }
         if (!result.isEmpty()) {
             result = result.substring(1);
@@ -150,12 +155,14 @@ public class Deque<E> implements Iterable<E> {
 
     /**
      * Unit testing.
+     * TODO remove these tests before your submission, otherwise submission will
+     * fail due to the usage of public method {@code toString()}.
      */
     public static void main(String[] args) {
 
         StdOut.println("Tests start.");
 
-        // Test 1: common operations
+        // Test 1: public operations
         Deque<Integer> d1 = new Deque<>();
         StdOut.println("Test 1A passed? " + d1.isEmpty());
         StdOut.println("Test 1B passed? " + d1.toString().equals("[]"));
