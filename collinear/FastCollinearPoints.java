@@ -3,6 +3,7 @@ import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.StdDraw;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * A faster, sorting-based solution. Remarkably, it is possible to solve the
@@ -25,15 +26,7 @@ public class FastCollinearPoints {
         checkDuplicate(sortedPoints);
 
         final int N = points.length;
-        final boolean[][] isMaxLineSegments = new boolean[N][N];
-        int nbMaxLineSegments = 0;
-
-        for (int i = 0; i < N; i++) {
-            for (int j = i + 1; j < N; j++) {
-                isMaxLineSegments[i][j] = true;
-                nbMaxLineSegments++;
-            }
-        }
+        final List<LineSegment> maxLineSegments = new LinkedList<>();
 
         for (int i = 0; i < N; i++) {
 
@@ -52,40 +45,21 @@ public class FastCollinearPoints {
                     candidates.add(pointsBySlope[x++]);
                 } while (x < N && p.slopeTo(pointsBySlope[x]) == SLOPE_REF);
 
-                // Condition 1:
-                //     Candidates are collinear if at least 4 points are located
-                //     at the same line: so at least 3 without "p".
-                // Condition 2:
-                //     The max line segment is created by the point "p" and the
-                //     last point in candidates iif "p" is the smallest point
-                //     having this slope comparing to all candidates.
+                // Candidates have a max line segment if ...
+                // 1. Candidates are collinear: At least 4 points are located
+                //    at the same line, so at least 3 without "p".
+                // 2. The max line segment is created by the point "p" and the
+                //    last point in candidates: so "p" must be the smallest
+                //    point having this slope comparing to all candidates.
                 if (candidates.size() >= 3
                         && p.compareTo(candidates.peek()) < 0) {
-                    // Its value in matrix "isMaxLineSegements" remains true.
-                    candidates.removeLast();
-                }
-                // Other points aren't the max line segment, change the matrix.
-                while (!candidates.isEmpty()) {
-                    int j = Arrays.binarySearch(sortedPoints, candidates.pop());
-                    if (isMaxLineSegments[i][j]) {
-                        isMaxLineSegments[i][j] = false;
-                        nbMaxLineSegments--;
-                    }
+                    Point min = p;
+                    Point max = candidates.removeLast();
+                    maxLineSegments.add(new LineSegment(min, max));
                 }
             }
         }
-
-        lineSegments = new LineSegment[nbMaxLineSegments];
-        int x = 0;
-        for (int i = 0; i < N - 1; i++) {
-            for (int j = i + 1; j < N; j++) {
-                if (isMaxLineSegments[i][j]) {
-                    Point pointI = sortedPoints[i];
-                    Point pointJ = sortedPoints[j];
-                    lineSegments[x++] = new LineSegment(pointI, pointJ);
-                }
-            }
-        }
+        lineSegments = maxLineSegments.toArray(new LineSegment[0]);
     }
 
     private void checkNull(Point[] points) {
