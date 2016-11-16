@@ -10,8 +10,6 @@ public class Board {
     private final int n;
     private int blankRow;
     private int blankCol;
-    private int manhattan;
-    private int hamming;
 
     /**
      * Construct a board from an n-by-n array of blocks
@@ -27,20 +25,13 @@ public class Board {
         n = blocks.length;
         blankRow = -1;
         blankCol = -1;
-        manhattan = 0;
-        hamming = 0;
 
         for (int row = 0; row < n; row++) {
             for (int col = 0; col < n; col++) {
                 if (blocks[row][col] == 0) {
                     blankRow = row;
                     blankCol = col;
-                    continue;
-                }
-                int m = manhattan(row, col);
-                if (m > 0) {
-                    manhattan += m;
-                    hamming++;
+                    return;
                 }
             }
         }
@@ -57,14 +48,34 @@ public class Board {
      * Number of blocks out of place
      */
     public int hamming() {
-        return hamming;
+        int result = 0;
+        for (int row = 0; row < n; row++) {
+            for (int col = 0; col < n; col++) {
+                if (row == blankRow && col == blankCol) {
+                    continue;
+                }
+                if (manhattan(row, col) != 0) {
+                    result++;
+                }
+            }
+        }
+        return result;
     }
 
     /**
      * Sum of Manhattan distances between blocks and goal
      */
     public int manhattan() {
-        return manhattan;
+        int result = 0;
+        for (int row = 0; row < n; row++) {
+            for (int col = 0; col < n; col++) {
+                if (row == blankRow && col == blankCol) {
+                    continue;
+                }
+                result += manhattan(row, col);
+            }
+        }
+        return result;
     }
 
     private int manhattan(int row, int col) {
@@ -78,7 +89,7 @@ public class Board {
      * Is this board the goal board?
      */
     public boolean isGoal() {
-        return hamming == 0;
+        return hamming() == 0;
     }
 
     /**
@@ -111,10 +122,6 @@ public class Board {
         if (this.getClass() != y.getClass())
             return false;
         Board that = (Board) y;
-        if (this.manhattan != that.manhattan)
-            return false;
-        if (this.hamming != that.hamming)
-            return false;
         if (this.blankCol != that.blankCol)
             return false;
         if (this.blankRow != that.blankRow)
