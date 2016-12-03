@@ -147,16 +147,16 @@ public class KdTree {
         if (node == null) {
             return;
         }
-        Point2D p = node.p;
-        if (rect.contains(p)) {
-            results.add(p);
+        if (rect.contains(node.p)) {
+            results.add(node.p);
+            addAll(node.leftBottom, rect, results);
+            addAll(node.rightTop, rect, results);
+            return;
         }
-        if ((node.sepr == Separator.HORIZONTAL && p.y() >= rect.ymin())
-                || (node.sepr == Separator.VERTICAL && p.x() >= rect.xmin())) {
+        if (node.isRightOrTopOf(new Point2D(rect.xmin(), rect.ymin()))) {
             addAll(node.leftBottom, rect, results);
         }
-        if ((node.sepr == Separator.HORIZONTAL && p.y() <= rect.ymax())
-                || (node.sepr == Separator.VERTICAL && p.x() <= rect.xmax())) {
+        if (!node.isRightOrTopOf(new Point2D(rect.xmax(), rect.ymax()))) {
             addAll(node.rightTop, rect, results);
         }
     }
