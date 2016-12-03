@@ -26,8 +26,8 @@ public class KdTree {
         private final Separator separator;
         private final Point2D p;
         private RectHV rect;
-        private Node left;  // left child node (on the left or bottom)
-        private Node right; // right child node (on the right or top)
+        private Node nodeLB;  // child node left/bottom
+        private Node nodeRT;  // child node right/top
 
         Node(Point2D p, Separator separator, RectHV rect) {
             this.p = p;
@@ -35,20 +35,20 @@ public class KdTree {
             this.rect = rect;
         }
 
-        public Node getLeft() {
-            return left;
+        public Node getNodeLB() {
+            return nodeLB;
         }
 
-        public void setLeft(Node left) {
-            this.left = left;
+        public void setNodeLB(Node nodeLB) {
+            this.nodeLB = nodeLB;
         }
 
-        public Node getRight() {
-            return right;
+        public Node getNodeRT() {
+            return nodeRT;
         }
 
-        public void setRight(Node right) {
-            this.right = right;
+        public void setNodeRT(Node nodeRT) {
+            this.nodeRT = nodeRT;
         }
 
         public Separator separator() {
@@ -68,13 +68,13 @@ public class KdTree {
             return rect;
         }
 
-        public RectHV getLeftRect() {
+        public RectHV rectLB() {
             return separator == Separator.VERTICAL
                     ? new RectHV(rect.xmin(), rect.ymin(), p.x(), rect.ymax())
                     : new RectHV(rect.xmin(), rect.ymin(), rect.xmax(), p.y());
         }
 
-        public RectHV getRightRect() {
+        public RectHV rectRT() {
             return separator == Separator.VERTICAL
                     ? new RectHV(p.x(), rect.ymin(), rect.xmax(), rect.ymax())
                     : new RectHV(rect.xmin(), p.y(), rect.xmax(), rect.ymax());
@@ -126,15 +126,14 @@ public class KdTree {
                 return;
             }
             prev = curr;
-            curr = curr.isRightOrTopOf(p) ? curr.getLeft() : curr.getRight(); 
+            curr = curr.isRightOrTopOf(p) ? curr.getNodeLB() : curr.getNodeRT(); 
         } while (curr != null);
 
         // Prepare new node and insert
-        Separator sepr = prev.nextSeparator();
         if (prev.isRightOrTopOf(p)) {
-            prev.setLeft(new Node(p, sepr, prev.getLeftRect()));
+            prev.setNodeLB(new Node(p, prev.nextSeparator(), prev.rectLB()));
         } else {
-            prev.setRight(new Node(p, sepr, prev.getRightRect()));
+            prev.setNodeRT(new Node(p, prev.nextSeparator(), prev.rectRT()));
         }
         size++;
     }
@@ -149,7 +148,7 @@ public class KdTree {
             if (node.p().equals(p)) {
                 return true;
             }
-            node = node.isRightOrTopOf(p) ? node.getLeft() : node.getRight();
+            node = node.isRightOrTopOf(p) ? node.getNodeLB() : node.getNodeRT();
         }
         return false;
     }
@@ -168,7 +167,7 @@ public class KdTree {
         checkNull(rect);
         List<Point2D> results = new LinkedList<>();
         addAll(root, rect, results);
-        return pointsInRect;
+        return results;
     }
 
     /**
@@ -185,11 +184,11 @@ public class KdTree {
         }
         if ((sepr == Separator.HORIZONTAL && p.y() >= rect.ymin())
                 || (sepr == Separator.VERTICAL && p.x() >= rect.xmin())) {
-            addAll(node.getLeft(), rect, results);
+            addAll(node.getNodeLB(), rect, results);
         }
         if ((sepr == Separator.HORIZONTAL && p.y() <= rect.ymax())
                 || (sepr == Separator.VERTICAL && p.x() <= rect.xmax())) {
-            addAll(node.getRight(), rect, results);
+            addAll(node.getNodeRT(), rect, results);
         }
     }
 
@@ -211,25 +210,31 @@ public class KdTree {
         }
         // Recursively search left/bottom or right/top
         // if it could contain a closer point
-        Node left = node.getLeft();
-        Node right = node.getRight();
+        Node nodeLB = node.getNodeLB();
+        Node nodeRT = node.getNodeRT();
         if (node.isRightOrTopOf(target)) {
-            // go left, then right
-            if (left != null && left.rect().distanceTo(target) < closestDist) {
-                closest = nearest(target, closest, left);
+            // go left/bottom, then right/top
+            if (nodeLB != null) {
+                if (nodeLB.rect().distanceTo(target) < closestDist) {
+                    closest = nearest(target, closest, nodeLB);
+                }
             }
-            if (right != null && right.rect().distanceTo(target)
-                    < closestDist) {
-                closest = nearest(target, closest, right);
+            if (nodeRT != null) {
+                if (nodeRT.rect().distanceTo(target) < closestDist) {
+                    closest = nearest(target, closest, nodeRT);
+                }
             }
         } else {
-            // go right, then left
-            if (right != null && right.rect().distanceTo(target)
-                    < closestDist) {
-                closest = nearest(target, closest, right);
+            // go right/top, then left/bottom
+            if (nodeRT != null) {
+                if (nodeRT.rect().distanceTo(target) < closestDist) {
+                    closest = nearest(target, closest, nodeRT);
+                }
             }
-            if (left != null && left.rect().distanceTo(target) < closestDist) {
-                closest = nearest(target, closest, left);
+            if (nodeLB != null) {
+                if (nodeLB.rect().distanceTo(target) < closestDist) {
+                    closest = nearest(target, closest, nodeLB);
+                }
             }
         }
         return closest;
