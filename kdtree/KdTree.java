@@ -170,40 +170,25 @@ public class KdTree {
     }
 
     private Point2D nearest(Point2D target, Point2D closest, Node node) {
-        double nodeDist = node.p.distanceTo(target);
+        if (node == null) {
+            return closest;
+        }
+
         double closestDist = closest.distanceTo(target);
 
-        if (nodeDist < closestDist) {
-            closest = node.p;
-            closestDist = nodeDist;
-        }
         // Recursively search left/bottom or right/top
         // if it could contain a closer point
-        Node leftBottom = node.leftBottom;
-        Node rightTop = node.rightTop;
-        if (node.isRightOrTopOf(target)) {
-            // go left/bottom, then right/top
-            if (leftBottom != null) {
-                if (leftBottom.rect.distanceTo(target) < closestDist) {
-                    closest = nearest(target, closest, leftBottom);
-                }
+        if (node.rect.distanceTo(target) < closestDist) {
+            double nodeDist = node.p.distanceTo(target);
+            if (nodeDist < closestDist) {
+                closest = node.p;
             }
-            if (rightTop != null) {
-                if (rightTop.rect.distanceTo(target) < closestDist) {
-                    closest = nearest(target, closest, rightTop);
-                }
-            }
-        } else {
-            // go right/top, then left/bottom
-            if (rightTop != null) {
-                if (rightTop.rect.distanceTo(target) < closestDist) {
-                    closest = nearest(target, closest, rightTop);
-                }
-            }
-            if (leftBottom != null) {
-                if (leftBottom.rect.distanceTo(target) < closestDist) {
-                    closest = nearest(target, closest, leftBottom);
-                }
+            if (node.isRightOrTopOf(target)) {
+                closest = nearest(target, closest, node.leftBottom);
+                closest = nearest(target, closest, node.rightTop);
+            } else {
+                closest = nearest(target, closest, node.rightTop);
+                closest = nearest(target, closest, node.leftBottom);
             }
         }
         return closest;
