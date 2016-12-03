@@ -166,12 +166,15 @@ public class KdTree {
      */
     public Iterable<Point2D> range(RectHV rect) {
         checkNull(rect);
-        List<Point2D> pointsInRect = new LinkedList<>();
-        dfs(root, rect, pointsInRect);
+        List<Point2D> results = new LinkedList<>();
+        addAll(root, rect, results);
         return pointsInRect;
     }
 
-    private void dfs(Node node, RectHV rect, List<Point2D> results) {
+    /**
+     * Add all points under target node using DFS.
+     */
+    private void addAll(Node node, RectHV rect, List<Point2D> results) {
         if (node == null) {
             return;
         }
@@ -182,11 +185,11 @@ public class KdTree {
         }
         if ((sepr == Separator.HORIZONTAL && p.y() >= rect.ymin())
                 || (sepr == Separator.VERTICAL && p.x() >= rect.xmin())) {
-            dfs(node.getLeft(), rect, results);
+            addAll(node.getLeft(), rect, results);
         }
         if ((sepr == Separator.HORIZONTAL && p.y() <= rect.ymax())
                 || (sepr == Separator.VERTICAL && p.x() <= rect.xmax())) {
-            dfs(node.getRight(), rect, results);
+            addAll(node.getRight(), rect, results);
         }
     }
 
