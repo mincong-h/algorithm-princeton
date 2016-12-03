@@ -20,38 +20,38 @@ public class KdTree {
 
     private static class Node {
 
-        private final Separator separator;
+        private final Separator sepr;
+        private final RectHV rect;
         private final Point2D p;
-        private RectHV rect;
-        private Node nodeLB;  // child node left/bottom
-        private Node nodeRT;  // child node right/top
+        private Node leftBottom;
+        private Node rightTop;
 
-        Node(Point2D p, Separator separator, RectHV rect) {
+        Node(Point2D p, Separator sepr, RectHV rect) {
             this.p = p;
-            this.separator = separator;
+            this.sepr = sepr;
             this.rect = rect;
         }
 
-        public Separator nextSeparator() {
-            return separator == Separator.VERTICAL ?
-                Separator.HORIZONTAL : Separator.VERTICAL;
+        public Separator nextSepr() {
+            return sepr == Separator.VERTICAL ?
+                    Separator.HORIZONTAL : Separator.VERTICAL;
         }
 
         public RectHV rectLB() {
-            return separator == Separator.VERTICAL
+            return sepr == Separator.VERTICAL
                     ? new RectHV(rect.xmin(), rect.ymin(), p.x(), rect.ymax())
                     : new RectHV(rect.xmin(), rect.ymin(), rect.xmax(), p.y());
         }
 
         public RectHV rectRT() {
-            return separator == Separator.VERTICAL
+            return sepr == Separator.VERTICAL
                     ? new RectHV(p.x(), rect.ymin(), rect.xmax(), rect.ymax())
                     : new RectHV(rect.xmin(), p.y(), rect.xmax(), rect.ymax());
         }
 
         public boolean isRightOrTopOf(Point2D q) {
-            return (separator == Separator.HORIZONTAL && p.y() > q.y())
-                    || (separator == Separator.VERTICAL && p.x() > q.x());
+            return (sepr == Separator.HORIZONTAL && p.y() > q.y())
+                    || (sepr == Separator.VERTICAL && p.x() > q.x());
         }
     }
 
@@ -88,6 +88,7 @@ public class KdTree {
             return;
         }
 
+        // find node position for insertion
         Node prev = null;
         Node curr = root;
         do {
@@ -95,14 +96,14 @@ public class KdTree {
                 return;
             }
             prev = curr;
-            curr = curr.isRightOrTopOf(p) ? curr.nodeLB : curr.nodeRT; 
+            curr = curr.isRightOrTopOf(p) ? curr.leftBottom : curr.rightTop; 
         } while (curr != null);
 
-        // Prepare new node and insert
+        // prepare new node and insert
         if (prev.isRightOrTopOf(p)) {
-            prev.nodeLB = new Node(p, prev.nextSeparator(), prev.rectLB());
+            prev.leftBottom = new Node(p, prev.nextSepr(), prev.rectLB());
         } else {
-            prev.nodeRT = new Node(p, prev.nextSeparator(), prev.rectRT());
+            prev.rightTop = new Node(p, prev.nextSepr(), prev.rectRT());
         }
         size++;
     }
@@ -117,7 +118,7 @@ public class KdTree {
             if (node.p.equals(p)) {
                 return true;
             }
-            node = node.isRightOrTopOf(p) ? node.nodeLB : node.nodeRT;
+            node = node.isRightOrTopOf(p) ? node.leftBottom : node.rightTop;
         }
         return false;
     }
@@ -146,18 +147,17 @@ public class KdTree {
         if (node == null) {
             return;
         }
-        Separator sepr = node.separator;
         Point2D p = node.p;
         if (rect.contains(p)) {
             results.add(p);
         }
-        if ((sepr == Separator.HORIZONTAL && p.y() >= rect.ymin())
-                || (sepr == Separator.VERTICAL && p.x() >= rect.xmin())) {
-            addAll(node.nodeLB, rect, results);
+        if ((node.sepr == Separator.HORIZONTAL && p.y() >= rect.ymin())
+                || (node.sepr == Separator.VERTICAL && p.x() >= rect.xmin())) {
+            addAll(node.leftBottom, rect, results);
         }
-        if ((sepr == Separator.HORIZONTAL && p.y() <= rect.ymax())
-                || (sepr == Separator.VERTICAL && p.x() <= rect.xmax())) {
-            addAll(node.nodeRT, rect, results);
+        if ((node.sepr == Separator.HORIZONTAL && p.y() <= rect.ymax())
+                || (node.sepr == Separator.VERTICAL && p.x() <= rect.xmax())) {
+            addAll(node.rightTop, rect, results);
         }
     }
 
@@ -172,37 +172,37 @@ public class KdTree {
     private Point2D nearest(Point2D target, Point2D closest, Node node) {
         double nodeDist = node.p.distanceTo(target);
         double closestDist = closest.distanceTo(target);
-        // Challenge the current closest point
+
         if (nodeDist < closestDist) {
             closest = node.p;
             closestDist = nodeDist;
         }
         // Recursively search left/bottom or right/top
         // if it could contain a closer point
-        Node nodeLB = node.nodeLB;
-        Node nodeRT = node.nodeRT;
+        Node leftBottom = node.leftBottom;
+        Node rightTop = node.rightTop;
         if (node.isRightOrTopOf(target)) {
             // go left/bottom, then right/top
-            if (nodeLB != null) {
-                if (nodeLB.rect.distanceTo(target) < closestDist) {
-                    closest = nearest(target, closest, nodeLB);
+            if (leftBottom != null) {
+                if (leftBottom.rect.distanceTo(target) < closestDist) {
+                    closest = nearest(target, closest, leftBottom);
                 }
             }
-            if (nodeRT != null) {
-                if (nodeRT.rect.distanceTo(target) < closestDist) {
-                    closest = nearest(target, closest, nodeRT);
+            if (rightTop != null) {
+                if (rightTop.rect.distanceTo(target) < closestDist) {
+                    closest = nearest(target, closest, rightTop);
                 }
             }
         } else {
             // go right/top, then left/bottom
-            if (nodeRT != null) {
-                if (nodeRT.rect.distanceTo(target) < closestDist) {
-                    closest = nearest(target, closest, nodeRT);
+            if (rightTop != null) {
+                if (rightTop.rect.distanceTo(target) < closestDist) {
+                    closest = nearest(target, closest, rightTop);
                 }
             }
-            if (nodeLB != null) {
-                if (nodeLB.rect.distanceTo(target) < closestDist) {
-                    closest = nearest(target, closest, nodeLB);
+            if (leftBottom != null) {
+                if (leftBottom.rect.distanceTo(target) < closestDist) {
+                    closest = nearest(target, closest, leftBottom);
                 }
             }
         }
