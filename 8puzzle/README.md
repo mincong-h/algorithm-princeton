@@ -20,10 +20,8 @@ For more informations, check the [official assignment description][1].
 
 ## How to compile
 
-* Mac OS / Linux / Windows
+Mac OS / Linux / Windows
 
-  ```
-  javac -cp ../lib/* Board.java Solver.java
-  ```
+    javac -cp ../lib/* Board.java Solver.java
 
 [1]: http://coursera.cs.princeton.edu/algs4/assignments/8puzzle.html

@@ -19,9 +19,11 @@ Week 1 | [Percolation][w1] | 100/100
 Week 2 | [Queues][w2] | 100/100
 Week 3 | [Collinear][w3] | 100/100
 Week 4 | [8puzzle][w4] | 100/100
+Week 5 | [Kd-Trees][w5] | 100/100
 
 [1]: https://www.coursera.org/learn/introduction-to-algorithms
 [w1]: http://coursera.cs.princeton.edu/algs4/assignments/percolation.html
 [w2]: http://coursera.cs.princeton.edu/algs4/assignments/queues.html
 [w3]: http://coursera.cs.princeton.edu/algs4/assignments/collinear.html
 [w4]: http://coursera.cs.princeton.edu/algs4/assignments/8puzzle.html
+[w5]: http://coursera.cs.princeton.edu/algs4/assignments/kdtree.html
