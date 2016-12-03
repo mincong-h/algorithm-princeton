@@ -18,10 +18,7 @@ public class KdTree {
     private Node root;
     private int size;
 
-    /**
-     * Inner class tree-node for 2D tree.
-     */
-    private class Node {
+    private static class Node {
 
         private final Separator separator;
         private final Point2D p;
@@ -35,37 +32,9 @@ public class KdTree {
             this.rect = rect;
         }
 
-        public Node getNodeLB() {
-            return nodeLB;
-        }
-
-        public void setNodeLB(Node nodeLB) {
-            this.nodeLB = nodeLB;
-        }
-
-        public Node getNodeRT() {
-            return nodeRT;
-        }
-
-        public void setNodeRT(Node nodeRT) {
-            this.nodeRT = nodeRT;
-        }
-
-        public Separator separator() {
-            return separator;
-        }
-
         public Separator nextSeparator() {
             return separator == Separator.VERTICAL ?
                 Separator.HORIZONTAL : Separator.VERTICAL;
-        }
-
-        public Point2D p() {
-            return p;
-        }
-
-        public RectHV rect() {
-            return rect;
         }
 
         public RectHV rectLB() {
@@ -122,18 +91,18 @@ public class KdTree {
         Node prev = null;
         Node curr = root;
         do {
-            if (curr.p().equals(p)) {
+            if (curr.p.equals(p)) {
                 return;
             }
             prev = curr;
-            curr = curr.isRightOrTopOf(p) ? curr.getNodeLB() : curr.getNodeRT(); 
+            curr = curr.isRightOrTopOf(p) ? curr.nodeLB : curr.nodeRT; 
         } while (curr != null);
 
         // Prepare new node and insert
         if (prev.isRightOrTopOf(p)) {
-            prev.setNodeLB(new Node(p, prev.nextSeparator(), prev.rectLB()));
+            prev.nodeLB = new Node(p, prev.nextSeparator(), prev.rectLB());
         } else {
-            prev.setNodeRT(new Node(p, prev.nextSeparator(), prev.rectRT()));
+            prev.nodeRT = new Node(p, prev.nextSeparator(), prev.rectRT());
         }
         size++;
     }
@@ -145,10 +114,10 @@ public class KdTree {
         checkNull(p);
         Node node = root;
         while (node != null) {
-            if (node.p().equals(p)) {
+            if (node.p.equals(p)) {
                 return true;
             }
-            node = node.isRightOrTopOf(p) ? node.getNodeLB() : node.getNodeRT();
+            node = node.isRightOrTopOf(p) ? node.nodeLB : node.nodeRT;
         }
         return false;
     }
@@ -177,18 +146,18 @@ public class KdTree {
         if (node == null) {
             return;
         }
-        Separator sepr = node.separator();
-        Point2D p = node.p();
+        Separator sepr = node.separator;
+        Point2D p = node.p;
         if (rect.contains(p)) {
             results.add(p);
         }
         if ((sepr == Separator.HORIZONTAL && p.y() >= rect.ymin())
                 || (sepr == Separator.VERTICAL && p.x() >= rect.xmin())) {
-            addAll(node.getNodeLB(), rect, results);
+            addAll(node.nodeLB, rect, results);
         }
         if ((sepr == Separator.HORIZONTAL && p.y() <= rect.ymax())
                 || (sepr == Separator.VERTICAL && p.x() <= rect.xmax())) {
-            addAll(node.getNodeRT(), rect, results);
+            addAll(node.nodeRT, rect, results);
         }
     }
 
@@ -197,42 +166,42 @@ public class KdTree {
      */
     public Point2D nearest(Point2D p) {
         checkNull(p);
-        return isEmpty() ? null : nearest(p, root.p(), root);
+        return isEmpty() ? null : nearest(p, root.p, root);
     }
 
     private Point2D nearest(Point2D target, Point2D closest, Node node) {
-        double nodeDist = node.p().distanceTo(target);
+        double nodeDist = node.p.distanceTo(target);
         double closestDist = closest.distanceTo(target);
         // Challenge the current closest point
         if (nodeDist < closestDist) {
-            closest = node.p();
+            closest = node.p;
             closestDist = nodeDist;
         }
         // Recursively search left/bottom or right/top
         // if it could contain a closer point
-        Node nodeLB = node.getNodeLB();
-        Node nodeRT = node.getNodeRT();
+        Node nodeLB = node.nodeLB;
+        Node nodeRT = node.nodeRT;
         if (node.isRightOrTopOf(target)) {
             // go left/bottom, then right/top
             if (nodeLB != null) {
-                if (nodeLB.rect().distanceTo(target) < closestDist) {
+                if (nodeLB.rect.distanceTo(target) < closestDist) {
                     closest = nearest(target, closest, nodeLB);
                 }
             }
             if (nodeRT != null) {
-                if (nodeRT.rect().distanceTo(target) < closestDist) {
+                if (nodeRT.rect.distanceTo(target) < closestDist) {
                     closest = nearest(target, closest, nodeRT);
                 }
             }
         } else {
             // go right/top, then left/bottom
             if (nodeRT != null) {
-                if (nodeRT.rect().distanceTo(target) < closestDist) {
+                if (nodeRT.rect.distanceTo(target) < closestDist) {
                     closest = nearest(target, closest, nodeRT);
                 }
             }
             if (nodeLB != null) {
-                if (nodeLB.rect().distanceTo(target) < closestDist) {
+                if (nodeLB.rect.distanceTo(target) < closestDist) {
                     closest = nearest(target, closest, nodeLB);
                 }
             }
