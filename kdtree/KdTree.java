@@ -173,11 +173,9 @@ public class KdTree {
         if (node == null) {
             return closest;
         }
-
-        double closestDist = closest.distanceTo(target);
-
         // Recursively search left/bottom or right/top
         // if it could contain a closer point
+        double closestDist = closest.distanceTo(target);
         if (node.rect.distanceTo(target) < closestDist) {
             double nodeDist = node.p.distanceTo(target);
             if (nodeDist < closestDist) {
