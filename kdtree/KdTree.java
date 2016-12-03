@@ -14,13 +14,8 @@ import java.util.List;
  */
 public class KdTree {
 
-    /**
-     * Directions for inner class: {@code Node}.
-     */
     private enum Separator { VERTICAL, HORIZONTAL }
-
     private Node root;
-
     private int size;
 
     /**
@@ -58,6 +53,11 @@ public class KdTree {
 
         public Separator separator() {
             return separator;
+        }
+
+        public Separator nextSeparator() {
+            return separator == Separator.VERTICAL ?
+                Separator.HORIZONTAL : Separator.VERTICAL;
         }
 
         public Point2D p() {
@@ -130,18 +130,13 @@ public class KdTree {
         } while (curr != null);
 
         // Prepare new node and insert
-        Separator dir = opposite(prev.separator());
+        Separator sepr = prev.nextSeparator();
         if (prev.isRightOrTopOf(p)) {
-            prev.setLeft(new Node(p, dir, prev.getLeftRect()));
+            prev.setLeft(new Node(p, sepr, prev.getLeftRect()));
         } else {
-            prev.setRight(new Node(p, dir, prev.getRightRect()));
+            prev.setRight(new Node(p, sepr, prev.getRightRect()));
         }
         size++;
-    }
-
-    private Separator opposite(Separator s) {
-        return s == Separator.VERTICAL ?
-                Separator.HORIZONTAL : Separator.VERTICAL;
     }
 
     /**
