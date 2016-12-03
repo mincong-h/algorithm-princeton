@@ -200,47 +200,16 @@ public class KdTree {
      */
     public Point2D nearest(Point2D p) {
         checkNull(p);
-        if (isEmpty()) {
-            return null;
-        }
-        return find(p, new Solution(null, Double.MAX_VALUE), root).point();
+        return isEmpty() ? null : nearest(p, root.point(), root);
     }
 
-    /**
-     * Solution to target point, a helper class for facilitating the calculation
-     * of {@code KdTree#nearest(Point2D)}.
-     */
-    private class Solution {
-
-        private final Point2D point;
-        private final double distance;
-
-        Solution(Point2D point, double distance) {
-            this.point = point;
-            this.distance = distance;
-        }
-
-        public Point2D point() {
-            return point;
-        }
-
-        public double distance() {
-            return distance;
-        }
-    }
-
-    /**
-     * Find the next best solution, the nearest point to {@code target}.
-     */
-    private Solution find(Point2D target, Solution currBest, Node node) {
-
-        if (node == null) {
-            return currBest;
-        }
-        double nodeDist = node.point().distanceSquaredTo(target);
+    private Point2D nearest(Point2D target, Point2D closest, Node node) {
+        double nodeDist = node.point().distanceTo(target);
+        double closestDist = closest.distanceTo(target);
         // Challenge the current closest point
-        if (nodeDist < currBest.distance()) {
-            currBest = new Solution(node.point(), nodeDist);
+        if (nodeDist < closestDist) {
+            closest = node.point();
+            closestDist = nodeDist;
         }
         // Recursively search left/bottom or right/top
         // if it could contain a closer point
@@ -248,26 +217,24 @@ public class KdTree {
         Node right = node.getRight();
         if (node.greaterThan(target)) {
             // go left, then right
-            if (left != null  && left.rect().distanceSquaredTo(target)
-                    < currBest.distance()) {
-                currBest = find(target, currBest, left);
+            if (left != null && left.rect().distanceTo(target) < closestDist) {
+                closest = nearest(target, closest, left);
             }
-            if (right != null && right.rect().distanceSquaredTo(target)
-                    < currBest.distance()) {
-                currBest = find(target, currBest, right);
+            if (right != null && right.rect().distanceTo(target)
+                    < closestDist) {
+                closest = nearest(target, closest, right);
             }
         } else {
             // go right, then left
-            if (right != null && right.rect().distanceSquaredTo(target)
-                    < currBest.distance()) {
-                currBest = find(target, currBest, right);
+            if (right != null && right.rect().distanceTo(target)
+                    < closestDist) {
+                closest = nearest(target, closest, right);
             }
-            if (left != null && left.rect().distanceSquaredTo(target)
-                    < currBest.distance()) {
-                currBest = find(target, currBest, left);
+            if (left != null && left.rect().distanceTo(target) < closestDist) {
+                closest = nearest(target, closest, left);
             }
         }
-        return currBest;
+        return closest;
     }
 
     private void checkNull(Object obj) {
