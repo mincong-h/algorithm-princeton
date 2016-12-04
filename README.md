@@ -18,7 +18,7 @@ Assignment | Name | Score
 Week 1 | [Percolation][w1] | 100/100
 Week 2 | [Queues][w2] | 100/100
 Week 3 | [Collinear][w3] | 100/100
-Week 4 | [8puzzle][w4] | 100/100
+Week 4 | [8 Puzzle][w4] | 100/100
 Week 5 | [Kd-Trees][w5] | 100/100
 
 [1]: https://www.coursera.org/learn/introduction-to-algorithms
