@@ -10,8 +10,8 @@ scientific performance analysis of Java implementations. Part I covers
 elementary data structures, sorting, and searching algorithms. Part II focuses
 on graph- and string-processing algorithms.
 
-All my assignments have score of 100 percent, so feel free to read them if you
-need any inspiration.
+This codebase only covers the Part I. However, all my assignments have score of
+100 percent, so feel free to read them if you need any inspiration.
 
 Assignment | Name | Score
 :--- | :--- | ---
@@ -20,6 +20,8 @@ Week 2 | [Queues][w2] | 100/100
 Week 3 | [Collinear][w3] | 100/100
 Week 4 | [8 Puzzle][w4] | 100/100
 Week 5 | [Kd-Trees][w5] | 100/100
+
+At the end, I wish you all a happy coding! :sunglasses::man_technologist:
 
 [1]: https://www.coursera.org/learn/introduction-to-algorithms
 [w1]: http://coursera.cs.princeton.edu/algs4/assignments/percolation.html
