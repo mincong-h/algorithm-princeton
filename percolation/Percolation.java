@@ -93,6 +93,7 @@ public class Percolation {
     
     /**
      * Returns the number of open sites
+     * @author Nilesh Deokar (nieldeokar)
      */
     public int numberOfOpenSites(){
         return openCount;
