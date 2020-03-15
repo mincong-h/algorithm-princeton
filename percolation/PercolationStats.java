@@ -54,6 +54,7 @@ public class PercolationStats {
 
     /**
      * Low end point of 95% confidence interval.
+     * @author Nilesh Deokar (nieldeokar)
      */
     public double confidenceLo() {
         return mean() - CONFIDENCE_95 * stddev() / Math.sqrt(fractions.length);
@@ -61,6 +62,7 @@ public class PercolationStats {
 
     /**
      * High end point of 95% confidence interval.
+     * @author Nilesh Deokar (nieldeokar)
      */
     public double confidenceHi() {
         return mean() + CONFIDENCE_95 * stddev() / Math.sqrt(fractions.length);
