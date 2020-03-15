@@ -11,6 +11,7 @@ import edu.princeton.cs.algs4.WeightedQuickUnionUF;
  * known as percolation to model such situations.
  *
  * @author Mincong Huang
+ * @author Nilesh Deokar (nieldeokar)
  */
 public class Percolation {
 
@@ -93,7 +94,6 @@ public class Percolation {
     
     /**
      * Returns the number of open sites
-     * @author Nilesh Deokar (nieldeokar)
      */
     public int numberOfOpenSites(){
         return openCount;
