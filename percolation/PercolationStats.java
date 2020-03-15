@@ -9,7 +9,8 @@ import edu.princeton.cs.algs4.StdStats;
  */
 public class PercolationStats {
 
-    private double[] fractions;
+    private final double[] fractions;
+    private final double CONFIDENCE_95 = 1.96;
 
     /**
      * Perform trials independent experiments on an n-by-n grid.
@@ -55,14 +56,14 @@ public class PercolationStats {
      * Low end point of 95% confidence interval.
      */
     public double confidenceLo() {
-        return mean() - 1.96 * stddev() / Math.sqrt(fractions.length);
+        return mean() - CONFIDENCE_95 * stddev() / Math.sqrt(fractions.length);
     }
 
     /**
      * High end point of 95% confidence interval.
      */
     public double confidenceHi() {
-        return mean() + 1.96 * stddev() / Math.sqrt(fractions.length);
+        return mean() + CONFIDENCE_95 * stddev() / Math.sqrt(fractions.length);
     }
 
     /**
