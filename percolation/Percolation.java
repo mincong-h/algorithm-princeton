@@ -91,7 +91,9 @@ public class Percolation {
         }
     }
     
-    // returns the number of open sites
+    /**
+     * Returns the number of open sites
+     */
     public int numberOfOpenSites(){
         return openCount;
     }
