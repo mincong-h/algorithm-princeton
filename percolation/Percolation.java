@@ -20,6 +20,7 @@ public class Percolation {
     private final int topIndex;
     private final int btmIndex;
     private final int n;
+    private int openCount;
 
     /**
      * Create n-by-n grid, with all sites blocked
@@ -66,6 +67,7 @@ public class Percolation {
     public void open(int row, int col) {
         int currIndex = indexOf(row, col);
         isOpen[currIndex] = true;
+        openCount++;
 
         if (row == 1) {
             backwashQU.union(currIndex, topIndex);  // Top
@@ -87,6 +89,11 @@ public class Percolation {
             backwashQU.union(indexOf(rowA, colA), indexOf(rowB, colB));
             normalQU.union(indexOf(rowA, colA), indexOf(rowB, colB));
         }
+    }
+    
+    // returns the number of open sites
+    public int numberOfOpenSites(){
+            return openCount;
     }
 
     /**
